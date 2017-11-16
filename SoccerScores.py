@@ -41,19 +41,53 @@ class Teams:
 
 
 	#Returns the list of matches of a team
-	def getTeamMatches(self, team):
+	def getTeamMatches(self, team, limit):
 		matches_played = []
+		counter = 1
 		for item in self.data_matches["rounds"]:
-			for matchdays in item.get("matches"):
-				homeTeam = matchdays.get("team1").get("name")
-				awayTeam = matchdays.get("team2").get("name")
+			if counter > limit:
+				break
+			else:
+				for matchdays in item.get("matches"):
+					homeTeam = matchdays.get("team1").get("name")
+					awayTeam = matchdays.get("team2").get("name")
 
-				if (homeTeam == team) or (awayTeam == team):
-					homeScore = matchdays.get("score1")
-					awayScore = matchdays.get("score2")
-					matches_played.append(homeTeam + " " + str(matchdays.get("score1")) + " - " + str(matchdays.get("score2")) + " " + awayTeam)
+					if (homeTeam == team) or (awayTeam == team):
+						homeScore = matchdays.get("score1")
+						awayScore = matchdays.get("score2")
+						matches_played.append(homeTeam + " " + str(matchdays.get("score1")) + " - " + str(matchdays.get("score2")) + " " + awayTeam)
+				counter = counter+1
 
 		return matches_played
+
+	def getPoints(self, team, limit):
+		pts = 0
+		counter = 1
+		for item in self.data_matches["rounds"]:
+			if counter > limit:
+				break
+			else:
+				for matchdays in item.get("matches"):
+					homeTeam = matchdays.get("team1").get("name")
+					awayTeam = matchdays.get("team2").get("name")
+					homeScore = matchdays.get("score1")
+					awayScore = matchdays.get("score2")
+
+					if homeTeam == team:
+						if homeScore > awayScore:
+							pts = pts+3
+						elif homeScore == awayScore:
+							pts=pts+1
+					elif awayTeam == team:
+						if awayScore > homeScore:
+							pts = pts+3
+						elif homeScore == awayScore:
+							pts=pts+1
+
+				counter = counter+1
+
+		return pts
+
 
 	
 
@@ -88,8 +122,29 @@ while index == -1:
 
 my_team = Teams(my_league.name)
 
-for elem in my_team.getTeamMatches(team_in):
+for elem in my_team.getTeamMatches(team_in, 10):
 	print elem
+
+
+def printTable(league, limit):
+	table = []
+	table_dict = {}
+	for elem in league:
+		scores = my_team.getPoints(elem, limit)
+		table.append(scores)
+		table_dict[elem] = scores
+	#Removing duplicates from the list of scores
+	finalt = list(set(table))
+	finalt.sort(reverse = True)
+
+	#Using the sorted list of scores to print an ordered table
+	for entry in finalt:
+		for elem in league:
+			if table_dict[elem] == entry:
+				print elem + " " + str(table_dict[elem])
+
+printTable(my_league.getTeamList(), 38)
+
 
 
 
