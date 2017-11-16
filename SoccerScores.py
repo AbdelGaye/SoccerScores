@@ -1,13 +1,8 @@
 #!/usr/bin/python
 
-import Tkinter
-from Tkinter import *
 import json
 import urllib2
 
-
-global gui
-global main_menu_var
 
 class League:
 	global league_dict
@@ -21,6 +16,7 @@ class League:
 		self.name = name
 		self.link = league_dict[name]
 
+	#Returns the list of teams in a league
 	def getTeamList(self):
 		team_list = []
 		data_clubs = json.load(urllib2.urlopen(self.link))
@@ -41,60 +37,60 @@ class Teams:
 	def __init__(self, name):
 		global info_dict
 		self.name = name
-		self.link = info_dict[name]
+		self.data_matches = json.load(urllib2.urlopen(info_dict[name]))
 
-	#Want to print Home team score - Away team score
+
+	#Returns the list of matches of a team
 	def getTeamMatches(self, team):
 		matches_played = []
-		data_matches = json.load(urllib2.urlopen(self.link))
-		for item in data_matches["rounds"]:
+		for item in self.data_matches["rounds"]:
 			for matchdays in item.get("matches"):
-				if (matchdays.get("team1").get("name") == team) or (matchdays.get("team2").get("name") == team):
-					matches_played.append(str(matchdays.get("score1")) + " - " + str(matchdays.get("score2")))
+				homeTeam = matchdays.get("team1").get("name")
+				awayTeam = matchdays.get("team2").get("name")
+
+				if (homeTeam == team) or (awayTeam == team):
+					homeScore = matchdays.get("score1")
+					awayScore = matchdays.get("score2")
+					matches_played.append(homeTeam + " " + str(matchdays.get("score1")) + " - " + str(matchdays.get("score2")) + " " + awayTeam)
 
 		return matches_played
 
+	
 
-def printToGUI(txt):
-	match_gui = Tkinter.Toplevel(gui)
-	label = Label(match_gui, text= txt)
-	#this creates a new label to the GUI
-	label.pack()
-    
+#Main function starts here
+print "Please enter a league."
 
-en_league = League("England")
-en_teams = en_league.getTeamList()
+my_league = ""
+while my_league == "":
+	user_in = raw_input()
+	try:
+		my_league = League(user_in)
+	except:
+		print "Invalid league. Please try again."
 
-sp_league = League("Spain")
-sp_teams = sp_league.getTeamList()
+for elem in my_league.getTeamList():
+	print elem
 
-it_league = League("Italy")
-it_teams = it_league.getTeamList()
 
-de_league = League("Germany")
-de_teams = de_league.getTeamList()
+print "Enter a team of your choice."
+index = -1
+team_in = ""
+while index == -1:
+	team_in = raw_input()
 
-gui = Tkinter.Tk()
+	for elem in my_league.getTeamList():
+		if elem == team_in:
+			index = 1
+			break
 
-#Widgets below
-OPTIONS = ["England", "Spain", "Italy", "Germany"]
-main_menu_var = StringVar(gui)
-main_menu_var.set("Select a league")
-main_menu = apply(OptionMenu, (gui, main_menu_var) + tuple(OPTIONS))
-main_menu.pack() 
+	if index == -1:
+		print "Team is not in this league. Please try again."
 
-variable = StringVar(gui)
-variable.set(en_teams[0]) # default value
+my_team = Teams(my_league.name)
 
-w = apply(OptionMenu, (gui, variable) + tuple(en_teams))
-w.pack()
+for elem in my_team.getTeamMatches(team_in):
+	print elem
 
-my_team = Teams("England")
-txt = my_team.getTeamMatches(variable.get())
 
-#Trying to activate button click only when team is selected
-button = Button(gui, text="OK", command=printToGUI(txt))
-button.pack()
 
-gui.mainloop()
 
