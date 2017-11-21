@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
+import sys
 import json
 import urllib2
 
-
+#This class takes care of a specific league
 class League:
 	global league_dict
 	league_dict = {"England": "https://raw.githubusercontent.com/opendatajson/football.json/master/2016-17/en.1.clubs.json", 
@@ -26,7 +27,7 @@ class League:
 
 		return team_list
 
-
+#This class takes care of specific teams
 class Teams:
 	global info_dict
 	info_dict = {"England": "https://raw.githubusercontent.com/opendatajson/football.json/master/2016-17/en.1.json",
@@ -60,6 +61,7 @@ class Teams:
 
 		return matches_played
 
+	#Returns the number of points of a team
 	def getPoints(self, team, limit):
 		pts = 0
 		counter = 1
@@ -94,6 +96,7 @@ class Teams:
 #Main function starts here
 print "Please enter a league."
 
+#Checking for invalid inputs
 my_league = ""
 while my_league == "":
 	user_in = raw_input()
@@ -102,35 +105,56 @@ while my_league == "":
 	except:
 		print "Invalid league. Please try again."
 
+print "\nWelcome to the " + my_league.name + " league."
+print "Here is a list of the current teams."
 for elem in my_league.getTeamList():
 	print elem
 
-
-print "Enter a team of your choice."
-index = -1
-team_in = ""
-while index == -1:
-	team_in = raw_input()
-
-	for elem in my_league.getTeamList():
-		if elem == team_in:
-			index = 1
-			break
-
-	if index == -1:
-		print "Team is not in this league. Please try again."
-
 my_team = Teams(my_league.name)
 
-for elem in my_team.getTeamMatches(team_in, 10):
-	print elem
+print "\nPlease select a mode: Team results, Matchday results, Table"
+
+modes = ["team results", "matchday results", "table"]
+
+#Function for matchdays
+def user_input():
+	inp = 1
+	print "Which matchday would you want to display? Type 38 to get full results."
+	while 1:
+		inp = input()
+		if (inp > 38) or (inp < 1):
+			print "Invalid value. Please try again."
+		else:
+			break
+	return inp
 
 
-def printTable(league, limit):
+#Function for printing the results of a specific team
+def printResults(team, limit):
+	print "\nEnter a team of your choice."
+	index = -1
+	team_in = ""
+	while index == -1:
+		team_in = raw_input()
+
+		for elem in my_league.getTeamList():
+			if elem == team_in:
+				index = 1
+				break
+
+		if index == -1:
+			print "Team is not in this league. Please try again."
+
+	for elem in team.getTeamMatches(team_in, limit):
+		print elem
+
+
+#Function for printing the league table
+def printTable(league, team, limit):
 	table = []
 	table_dict = {}
 	for elem in league:
-		scores = my_team.getPoints(elem, limit)
+		scores = team.getPoints(elem, limit)
 		table.append(scores)
 		table_dict[elem] = scores
 	#Removing duplicates from the list of scores
@@ -143,7 +167,31 @@ def printTable(league, limit):
 			if table_dict[elem] == entry:
 				print elem + " " + str(table_dict[elem])
 
-printTable(my_league.getTeamList(), 38)
+
+#Function for taking action based on user modes
+def userMode(mode):
+	if mode == "table":
+		printTable(my_league.getTeamList(), my_team, user_input())
+	elif mode == "team results":
+		printResults(my_team, user_input())
+
+
+#Once the user has put in a mode
+while 1:
+	index = -1
+	my_mode = raw_input().lower()
+	for elem in modes:
+		if my_mode == elem:
+			index = 1
+			break
+
+	if my_mode == "q":
+		sys.exit()
+	elif index == -1:
+		print "Invalid mode. Please try again."
+	elif index == 1:
+		userMode(my_mode)
+		print "Another mode?" 
 
 
 
