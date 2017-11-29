@@ -93,6 +93,17 @@ class Teams:
 
 	
 
+def connected(host):
+    try:
+        urllib2.urlopen(host)
+        return True
+    except:
+        return False
+
+if connected("https://raw.githubusercontent.com/opendatajson/football.json/master/2016-17/en.1.clubs.json") == False:
+	print "No Internet connection!"
+	sys.exit()
+
 #Main function starts here
 print "Please enter a league."
 
