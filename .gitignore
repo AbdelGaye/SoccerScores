@@ -1,0 +1,4 @@
+nose2-junit.xml
+*.pyc
+.vscode/*
+.coverage

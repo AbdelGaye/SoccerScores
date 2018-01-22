@@ -1,0 +1,44 @@
+{
+  "name": "Mock",
+  "rounds": [
+    {
+      "matches": [
+        {
+          "team1": {
+            "name": "Home"
+          },
+          "team2": {
+            "name": "Away"
+          },
+          "score1": 6,
+          "score2": 0
+        }]
+    },
+    {
+        "matches": [
+        {
+          "team1": {
+            "name": "Home"
+          },
+          "team2": {
+            "name": "Away"
+          },
+          "score1": 1,
+          "score2": 3
+        }]
+    },
+    {
+        "matches": [
+        {
+          "team1": {
+            "name": "Home"
+          },
+          "team2": {
+            "name": "Away"
+          },
+          "score1": 2,
+          "score2": 2
+        }]
+    }
+]
+}
